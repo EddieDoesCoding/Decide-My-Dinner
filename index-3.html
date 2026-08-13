@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decide My Dinner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F2F0EA;
+    --ink:#1C1A17;
+    --stamp:#B3372B;
+    --muted:#7A736A;
+    --rule:#CFC9BD;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Courier Prime",ui-monospace,monospace;
+    font-size:15px;line-height:1.6;padding:32px 20px 64px;
+  }
+  .wrap{max-width:540px;margin:0 auto}
+
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+  h1{
+    font-family:"Anton",Impact,sans-serif;font-weight:400;
+    font-size:clamp(44px,12vw,72px);line-height:.92;
+    text-transform:uppercase;margin:0 0 6px;
+  }
+  h1 em{font-style:normal;color:var(--stamp)}
+  .sub{color:var(--muted);margin:0 0 28px;max-width:34em}
+
+  .panel{border:1.5px solid var(--ink);padding:20px;margin-bottom:24px}
+  fieldset{border:0;margin:0;padding:0}
+  legend{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:0 0 10px}
+  label{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  input,select{
+    font-family:inherit;font-size:15px;width:100%;padding:9px 10px;
+    background:transparent;border:1px solid var(--rule);color:var(--ink);border-radius:0;
+  }
+  input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--stamp);outline-offset:2px}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .row > div{flex:1 1 150px}
+  .locrow{display:flex;gap:10px;align-items:flex-end;margin-bottom:16px;flex-wrap:wrap}
+  .locrow > div{flex:1 1 180px}
+
+  button{
+    font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    padding:10px 16px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);
+    cursor:pointer;border-radius:0;
+  }
+  button:hover{background:var(--ink);color:var(--paper)}
+  button[disabled]{opacity:.45;cursor:wait}
+  .primary{
+    width:100%;margin-top:18px;background:var(--stamp);border-color:var(--stamp);
+    color:var(--paper);font-size:16px;padding:14px;
+  }
+  .primary:hover{background:var(--ink);border-color:var(--ink)}
+  .status{min-height:1.6em;font-size:13px;color:var(--muted);margin:14px 0 0}
+  .status.error{color:var(--stamp)}
+
+  .setup{
+    border:1px dashed var(--stamp);color:var(--stamp);
+    font-size:12.5px;padding:12px 14px;margin-bottom:22px;line-height:1.55;
+  }
+  .setup[hidden]{display:none}
+  .setup code{background:rgba(179,55,43,.09);padding:1px 4px}
+  .setup a{color:var(--stamp)}
+
+  .receipt{
+    position:relative;background:#FBFAF6;border:1px solid var(--rule);
+    border-top:0;border-bottom:0;padding:34px 26px 30px;
+  }
+  .receipt::before,.receipt::after{
+    content:"";position:absolute;left:-1px;right:-1px;height:9px;
+    background:
+      repeating-linear-gradient(-45deg,#FBFAF6 0 6px,transparent 6px 12px),
+      repeating-linear-gradient(45deg,#FBFAF6 0 6px,transparent 6px 12px);
+  }
+  .receipt::before{top:-9px;transform:scaleY(-1)}
+  .receipt::after{bottom:-9px}
+  .receipt[hidden]{display:none}
+
+  .stamp{
+    position:absolute;top:14px;right:14px;transform:rotate(7deg);
+    border:2px solid var(--stamp);color:var(--stamp);
+    font-size:10px;font-weight:700;letter-spacing:.16em;
+    padding:4px 8px;text-transform:uppercase;opacity:.85;
+  }
+  .rname{
+    font-family:"Anton",Impact,sans-serif;font-weight:400;
+    font-size:clamp(28px,7vw,40px);line-height:1.02;
+    text-transform:uppercase;margin:0 90px 4px 0;
+  }
+  .rcats{color:var(--muted);font-size:13px;margin:0 0 18px}
+  dl{margin:0;border-top:1px dashed var(--rule)}
+  .line{
+    display:flex;justify-content:space-between;gap:16px;
+    padding:8px 0;border-bottom:1px dashed var(--rule);font-size:14px;
+  }
+  .line dt{color:var(--muted);text-transform:uppercase;font-size:11px;letter-spacing:.1em;padding-top:3px;white-space:nowrap}
+  .line dd{margin:0;text-align:right;word-break:break-word}
+  .actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+  .actions a{
+    display:inline-block;text-decoration:none;font-size:13px;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;padding:10px 16px;
+    border:1.5px solid var(--ink);color:var(--ink);
+  }
+  .actions a:hover{background:var(--ink);color:var(--paper)}
+  .attrib{font-size:11px;color:var(--muted);margin:22px 0 0;text-align:center}
+  .attrib a{color:var(--muted)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .receipt{animation:print .45s ease-out}
+    @keyframes print{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">One less thing to argue about</p>
+  <h1>Decide<br>my <em>dinner.</em></h1>
+  <p class="sub">Share your location or type a zip code. It finds restaurants nearby and picks one for you.</p>
+
+  <div class="setup" id="setup" hidden>
+    <strong></strong><br>
+    </a>
+  </div>
+
+  <form class="panel" id="form">
+    <fieldset>
+      <legend>Where are you</legend>
+
+      <div class="locrow">
+        <div>
+          <label for="place">Zip code or city</label>
+          <input id="place" name="place" autocomplete="postal-code" placeholder="78704 or Austin, TX">
+        </div>
+        <button type="button" id="geo">Use my location</button>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="radius">Search radius</label>
+          <select id="radius">
+            <option value="1600">1 mile</option>
+            <option value="4800" selected>3 miles</option>
+            <option value="8000">5 miles</option>
+            <option value="16000">10 miles</option>
+          </select>
+        </div>
+        <div>
+          <label for="kind">Type of place</label>
+          <select id="kind">
+            <option value="catering.restaurant,catering.fast_food,catering.cafe" selected>Anything</option>
+            <option value="catering.restaurant">Sit-down only</option>
+            <option value="catering.fast_food">Quick / casual</option>
+            <option value="catering.cafe">Cafés</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <label for="term">Craving (optional)</label>
+        <input id="term" placeholder="tacos, ramen, pizza…">
+      </div>
+
+      <button type="submit" class="primary" id="roll">Decide for me</button>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </fieldset>
+  </form>
+
+  <article class="receipt" id="receipt" hidden>
+    <span class="stamp">Tonight's pick</span>
+    <h2 class="rname" id="r-name"></h2>
+    <p class="rcats" id="r-cats"></p>
+    <dl>
+      <div class="line"><dt>Distance</dt><dd id="r-dist"></dd></div>
+      <div class="line"><dt>Address</dt><dd id="r-addr"></dd></div>
+      <div class="line"><dt>Hours</dt><dd id="r-hours"></dd></div>
+      <div class="line"><dt>Phone</dt><dd id="r-phone"></dd></div>
+      <div class="line"><dt>Website</dt><dd id="r-web"></dd></div>
+    </dl>
+    <div class="actions">
+      <button type="button" id="again">Pick another</button>
+      <a id="r-map" href="#" target="_blank" rel="noopener">Open in maps</a>
+    </div>
+    <p class="attrib">
+      Powered by <a href="https://www.geoapify.com/" target="_blank" rel="noopener">Geoapify</a> ·
+      Data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors
+    </p>
+  </article>
+
+</div>
+
+<script>
+const API_KEY = "212f33360d9a42b7abca52a958209ff7";
+
+const PLACES  = "https://api.geoapify.com/v2/places";
+const GEOCODE = "https://api.geoapify.com/v1/geocode/search";
+
+const els = {
+  form:    document.getElementById("form"),
+  place:   document.getElementById("place"),
+  term:    document.getElementById("term"),
+  radius:  document.getElementById("radius"),
+  kind:    document.getElementById("kind"),
+  geo:     document.getElementById("geo"),
+  roll:    document.getElementById("roll"),
+  again:   document.getElementById("again"),
+  status:  document.getElementById("status"),
+  receipt: document.getElementById("receipt"),
+  setup:   document.getElementById("setup"),
+};
+
+let coords = null;     // {lat, lon}
+let pool   = [];       // cached results, so "pick another" is free
+let seen   = new Set();
+
+if (!API_KEY || API_KEY === "212f33360d9a42b7abca52a958209ff7") {
+  els.setup.hidden = false;
+}
+
+//get coordinates, either from the browser or from text
+
+els.geo.addEventListener("click", () => {
+  if (!navigator.geolocation) {
+    return setStatus("This browser can't share location. Type a zip code instead.", true);
+  }
+  setStatus("Asking for your location…");
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      coords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+      els.place.value = "";
+      resetPool();
+      setStatus("Got it. Ready when you are.");
+    },
+    (err) => {
+      coords = null;
+      setStatus(
+        err.code === err.PERMISSION_DENIED
+          ? "Location permission was denied. Type a zip code instead."
+          : "Couldn't get your location. Type a zip code instead.",
+        true
+      );
+    },
+    { timeout: 10000 }
+  );
+});
+
+els.place.addEventListener("input", () => {
+  if (els.place.value.trim()) coords = null;
+  resetPool();
+});
+[els.radius, els.kind, els.term].forEach(el => el.addEventListener("change", resetPool));
+
+async function geocode(text) {
+  const url = GEOCODE + "?" + new URLSearchParams({
+    text,
+    limit: "1",
+    apiKey: 212f33360d9a42b7abca52a958209ff7,
+  });
+  const res = await fetch(url);
+  if (!res.ok) throw await apiError(res);
+
+  const data = await res.json();
+  const hit = data.features?.[0]?.properties;
+  if (!hit) throw new Error("Couldn't find that place. Check the spelling?");
+  return { lat: hit.lat, lon: hit.lon };
+}
+
+//ask Geoapify for restaurants around that point
+
+async function fetchPlaces({ lat, lon }) {
+  const url = PLACES + "?" + new URLSearchParams({
+    categories: els.kind.value,
+    // circle takes longitude FIRST, then latitude. easy to get backwards
+    filter: `circle:${lon},${lat},${els.radius.value}`,
+    bias:   `proximity:${lon},${lat}`,
+    limit:  "100",
+    apiKey: 212f33360d9a42b7abca52a958209ff7,
+  });
+
+  const res = await fetch(url);
+  if (!res.ok) throw await apiError(res);
+
+  const data = await res.json();
+  return (data.features || []).map(normalize).filter(Boolean);
+}
+
+// Geoapify answers in GeoJSON. The tidy fields live in `properties`,
+function normalize(feature) {
+  const p = feature.properties || {};
+  if (!p.name) return null;
+
+  const raw = p.datasource?.raw || {};
+  const [lon, lat] = feature.geometry?.coordinates || [p.lon, p.lat];
+  if (lat == null || lon == null) return null;
+
+  return {
+    id: p.place_id || `${lat},${lon}`,
+    name: p.name,
+    lat, lon,
+    cuisine: String(raw.cuisine || "").split(";").filter(Boolean),
+    kind: (p.categories || []).find(c => c.startsWith("catering.")) || "",
+    address: p.address_line2 || p.formatted || "",
+    hours: raw.opening_hours || "",
+    phone: raw.phone || raw["contact:phone"] || "",
+    website: p.website || raw.website || raw["contact:website"] || "",
+    distance: typeof p.distance === "number" ? p.distance : null,
+  };
+}
+
+//filter, pick at random, show it
+
+els.form.addEventListener("submit", (e) => { e.preventDefault(); run(); });
+els.again.addEventListener("click", () => pool.length ? render(pick()) : run());
+
+async function run() {
+  if (!API_KEY || API_KEY === "212f33360d9a42b7abca52a958209ff7") {
+    els.setup.hidden = false;
+    return setStatus("No API key set yet — see the note above.", true);
+  }
+
+  const typed = els.place.value.trim();
+  if (!coords && !typed) {
+    setStatus("Enter a zip code, or tap “Use my location”.", true);
+    return els.place.focus();
+  }
+
+  els.roll.disabled = true;
+  try {
+    if (!coords) {
+      setStatus("Finding that location…");
+      coords = await geocode(typed);
+    }
+
+    setStatus("Looking for places to eat…");
+    let results = await fetchPlaces(coords);
+
+    // "Craving" filter, matched against the name and the cuisine tags
+    const want = els.term.value.trim().toLowerCase();
+    if (want) {
+      const hits = results.filter(r =>
+        r.name.toLowerCase().includes(want) ||
+        r.cuisine.some(c => c.toLowerCase().includes(want))
+      );
+      if (hits.length) {
+        results = hits;
+      } else {
+        setStatus(`Nothing matching “${els.term.value.trim()}” nearby — showing everything instead.`);
+      }
+    }
+
+    if (!results.length) {
+      els.receipt.hidden = true;
+      return setStatus("Nothing found in that area. Try a wider radius.", true);
+    }
+
+    results.forEach(r => {
+      if (r.distance == null) r.distance = haversine(coords, r);
+    });
+
+    pool = results;
+    seen = new Set();
+    if (!want) setStatus(pool.length + " places nearby. Picked one.");
+    render(pick());
+  } catch (err) {
+    console.error(err);
+    setStatus(err.message, true);
+  } finally {
+    els.roll.disabled = false;
+  }
+}
+
+// Random, but won't repeat until the whole list has been used
+function pick() {
+  const fresh = pool.filter(r => !seen.has(r.id));
+  const from  = fresh.length ? fresh : (seen.clear(), pool);
+  const choice = from[Math.floor(Math.random() * from.length)];
+  seen.add(choice.id);
+  return choice;
+}
+
+function render(r) {
+  set("r-name", r.name);
+
+  const labels = {
+    "catering.restaurant": "Restaurant",
+    "catering.fast_food":  "Quick bite",
+    "catering.cafe":       "Café",
+  };
+  set("r-cats", [...r.cuisine.map(titleCase), labels[r.kind] || "Restaurant"].join(" · "));
+
+  set("r-dist",  r.distance != null ? (r.distance / 1609.34).toFixed(1) + " mi away" : "—");
+  set("r-addr",  r.address || "Not listed");
+  set("r-hours", r.hours   || "Not listed");
+  set("r-phone", r.phone   || "Not listed");
+
+  const web = document.getElementById("r-web");
+  web.textContent = "";
+  if (r.website) {
+    const a = document.createElement("a");
+    a.href = r.website;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = r.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+    web.appendChild(a);
+  } else {
+    web.textContent = "Not listed";
+  }
+
+  document.getElementById("r-map").href =
+    `https://www.openstreetmap.org/?mlat=${r.lat}&mlon=${r.lon}#map=18/${r.lat}/${r.lon}`;
+
+  els.receipt.hidden = false;
+  els.receipt.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+
+// Helpers
+async function apiError(res) {
+  const body = await res.json().catch(() => ({}));
+  if (res.status === 401) return new Error("That API key was rejected. Check it in the Geoapify dashboard.");
+  if (res.status === 429) return new Error("Daily free limit reached. It resets tomorrow.");
+  return new Error(body.message || `Request failed (${res.status}).`);
+}
+
+// Straight-line distance between two points, in meters
+function haversine(a, b) {
+  const R = 6371000, toRad = d => d * Math.PI / 180;
+  const dLat = toRad(b.lat - a.lat), dLon = toRad(b.lon - a.lon);
+  const h = Math.sin(dLat / 2) ** 2 +
+            Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+function titleCase(s) { return s.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()); }
+function set(id, text) { document.getElementById(id).textContent = text; }
+function resetPool() { pool = []; seen = new Set(); }
+function setStatus(msg, isError) {
+  els.status.textContent = msg;
+  els.status.className = isError ? "status error" : "status";
+}
+</script>
+</body>
+</html>
